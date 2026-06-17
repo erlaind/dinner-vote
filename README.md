@@ -36,3 +36,12 @@ That's it — open the project's root URL and the badge should read **Live**.
 - To start a fresh round, visit `…/api/reset?token=YOUR_TOKEN`.
 
 > See [HANDOFF.md](HANDOFF.md) for current deployment status and what's left to do.
+
+## How this was built (for demos)
+
+The full journey — from installing Claude Code to a deployed live app — is in
+`docs/`:
+
+- ![Workflow](docs/workflow-simple.png)
+- Detailed 10-step version: `docs/workflow.png` (also as editable
+  `docs/workflow.svg`)
