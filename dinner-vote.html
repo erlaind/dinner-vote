@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What do we want for dinner — Please Vote</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1d24;
+    --card-hover: #20242d;
+    --text: #f4f4f5;
+    --muted: #9aa0aa;
+    --accent: #ff7a3c;
+    --accent-glow: rgba(255,122,60,0.35);
+    --star-off: #3a3f4a;
+    --star-on: #ffc043;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1c2230 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 16px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 32px; }
+  header h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  header h1 .accent { color: var(--accent); }
+  header p { margin-top: 12px; color: var(--muted); font-size: 16px; }
+
+  /* ---- Voting cards ---- */
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius);
+    padding: 14px 18px 14px 14px;
+    margin-bottom: 16px;
+    transition: background .2s, transform .2s;
+  }
+  .card:not(.locked):hover { background: var(--card-hover); transform: translateY(-2px); }
+
+  .thumb {
+    width: 92px; height: 92px;
+    border-radius: 14px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #2a2e38;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    display: block;
+  }
+  .thumb-fallback {
+    width: 92px; height: 92px;
+    border-radius: 14px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 46px;
+    background: linear-gradient(135deg, #2a2e38, #20242d);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  .info { flex: 1; min-width: 0; }
+  .info .name { font-size: 20px; font-weight: 700; }
+  .info .hint { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .scale { display: flex; gap: 6px; margin-top: 10px; }
+  .dot {
+    width: 38px; height: 38px;
+    border: none; border-radius: 10px;
+    background: var(--star-off);
+    color: #c7ccd6;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .1s, color .15s;
+  }
+  .dot:hover { transform: scale(1.08); }
+  .scale:hover .dot { background: var(--star-on); color: #2a1b00; }
+  .scale .dot:hover ~ .dot { background: var(--star-off); color: #c7ccd6; }
+  .dot.selected { background: var(--star-on); color: #2a1b00; box-shadow: 0 0 0 2px var(--accent-glow); }
+  .card.locked .dot { cursor: default; }
+  .card.locked .scale:hover .dot { background: var(--star-off); color: #c7ccd6; }
+  .card.locked .scale:hover .dot.selected { background: var(--star-on); color: #2a1b00; }
+
+  /* ---- Status / actions ---- */
+  .banner {
+    text-align: center;
+    background: linear-gradient(90deg, rgba(255,122,60,0.12), rgba(255,192,67,0.12));
+    border: 1px solid rgba(255,122,60,0.3);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 24px;
+    font-size: 16px;
+    display: none;
+  }
+  .banner.show { display: block; }
+
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #1a1004;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: transform .1s, filter .15s;
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+  /* ---- Results ---- */
+  .results {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius);
+    padding: 22px 22px 10px;
+    margin-top: 28px;
+  }
+  .results h2 { font-size: 22px; font-weight: 800; }
+  .results .sub { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+
+  .bar-row { margin-bottom: 16px; }
+  .bar-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 15px; margin-bottom: 6px;
+  }
+  .bar-head .lbl { font-weight: 700; }
+  .bar-head .lbl .emoji { margin-right: 6px; }
+  .bar-head .val { color: var(--muted); font-size: 13px; }
+  .bar-head .val b { color: var(--star-on); font-size: 16px; }
+
+  .bar-track {
+    height: 22px;
+    background: #2a2e38;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--accent), var(--star-on));
+    transition: width .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .bar-row.leader .bar-fill { box-shadow: 0 0 14px var(--accent-glow); }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 28px; }
+  footer a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>What do we want for <span class="accent">dinner</span>?<br>Please Vote 🍽️</h1>
+      <p>Rate each option from <strong>1 (no thanks)</strong> to <strong>5 (yes please!)</strong> — one vote per option.</p>
+    </header>
+
+    <div class="banner" id="banner">
+      ✅ Thanks for voting! Your ratings are locked in.
+      <br>
+      <button class="btn" id="next">👉 Next voter (pass the device)</button>
+    </div>
+
+    <div id="list"></div>
+
+    <!-- Live results -->
+    <div class="results">
+      <h2>📊 Live results</h2>
+      <p class="sub" id="resultsSub">No votes yet — be the first!</p>
+      <div id="bars"></div>
+    </div>
+
+    <footer>
+      One vote per option per session · results update live · <a id="reset">Reset everything</a>
+    </footer>
+  </div>
+
+<script>
+  /* ---------------- Survey schema ---------------- */
+  const SCHEMA = {
+    title: "What do we want for dinner",
+    scale: { min: 1, max: 5 },
+    questions: [
+      { id: "pizza",  label: "Pizza",  emoji: "🍕", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&q=80&auto=format&fit=crop" },
+      { id: "burger", label: "Burger", emoji: "🍔", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&q=80&auto=format&fit=crop" },
+      { id: "pasta",  label: "Pasta",  emoji: "🍝", img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=200&q=80&auto=format&fit=crop" },
+      { id: "fish",   label: "Fish",   emoji: "🐟", img: "https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=200&q=80&auto=format&fit=crop" },
+      { id: "salad",  label: "Salad",  emoji: "🥗", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&q=80&auto=format&fit=crop" }
+    ]
+  };
+
+  /* ---------------- State ----------------
+     session = current voter's locks (one click per option)
+     tally   = running aggregate across all voters in this browser */
+  const SESSION_KEY = "dinner-vote-session";
+  const TALLY_KEY   = "dinner-vote-tally";
+
+  let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+  let tally = JSON.parse(localStorage.getItem(TALLY_KEY) || "null");
+  if (!tally) {
+    tally = {};
+    SCHEMA.questions.forEach(q => tally[q.id] = { count: 0, sum: 0 });
+  }
+
+  const list    = document.getElementById("list");
+  const bars    = document.getElementById("bars");
+  const banner  = document.getElementById("banner");
+  const subEl   = document.getElementById("resultsSub");
+
+  function save() {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    localStorage.setItem(TALLY_KEY, JSON.stringify(tally));
+  }
+
+  /* ---------------- Render voting cards ---------------- */
+  function renderCards() {
+    list.innerHTML = "";
+    SCHEMA.questions.forEach(q => {
+      const locked = session[q.id] != null;
+
+      const card = document.createElement("div");
+      card.className = "card" + (locked ? " locked" : "");
+
+      // image with emoji fallback (so options are always visible offline)
+      const img = document.createElement("img");
+      img.className = "thumb";
+      img.src = q.img;
+      img.alt = q.label;
+      img.loading = "lazy";
+      img.onerror = function () {
+        const fb = document.createElement("div");
+        fb.className = "thumb-fallback";
+        fb.textContent = q.emoji;
+        img.replaceWith(fb);
+      };
+
+      const info = document.createElement("div");
+      info.className = "info";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = q.emoji + " " + q.label;
+
+      const hint = document.createElement("div");
+      hint.className = "hint";
+      hint.textContent = locked ? "You voted: " + session[q.id] + " / 5" : "Tap a number to vote";
+
+      const scale = document.createElement("div");
+      scale.className = "scale";
+      for (let v = SCHEMA.scale.min; v <= SCHEMA.scale.max; v++) {
+        const dot = document.createElement("button");
+        dot.className = "dot" + (locked && v <= session[q.id] ? " selected" : "");
+        dot.textContent = v;
+        if (locked) { dot.disabled = true; }
+        else { dot.addEventListener("click", () => vote(q.id, v)); }
+        scale.appendChild(dot);
+      }
+
+      info.append(name, hint, scale);
+      card.append(img, info);
+      list.appendChild(card);
+    });
+  }
+
+  /* ---------------- Vote ---------------- */
+  function vote(id, value) {
+    if (session[id] != null) return;       // one click per session per option
+    session[id] = value;
+    tally[id].count += 1;
+    tally[id].sum   += value;
+    save();
+    renderCards();
+    renderResults();
+    updateBanner();
+  }
+
+  /* ---------------- Render live results ---------------- */
+  function renderResults() {
+    const avgs = SCHEMA.questions.map(q => {
+      const t = tally[q.id];
+      return { q, count: t.count, avg: t.count ? t.sum / t.count : 0 };
+    });
+    const maxAvg = Math.max(1, ...avgs.map(a => a.avg)); // for bar scaling (vs 5)
+    const leader = avgs.reduce((a, b) => (b.avg > a.avg ? b : a), avgs[0]);
+    const totalVotes = avgs.reduce((s, a) => s + a.count, 0);
+
+    subEl.textContent = totalVotes === 0
+      ? "No votes yet — be the first!"
+      : totalVotes + " vote" + (totalVotes === 1 ? "" : "s") + " so far · bars show average rating (out of 5)";
+
+    bars.innerHTML = "";
+    avgs.forEach(a => {
+      const row = document.createElement("div");
+      row.className = "bar-row" + (totalVotes && a.q.id === leader.q.id && a.avg > 0 ? " leader" : "");
+
+      const head = document.createElement("div");
+      head.className = "bar-head";
+      head.innerHTML =
+        '<span class="lbl"><span class="emoji">' + a.q.emoji + '</span>' + a.q.label +
+        (totalVotes && a.q.id === leader.q.id && a.avg > 0 ? ' 👑' : '') + '</span>' +
+        '<span class="val"><b>' + (a.count ? a.avg.toFixed(1) : "–") + '</b> avg · ' + a.count + ' vote' + (a.count === 1 ? "" : "s") + '</span>';
+
+      const track = document.createElement("div");
+      track.className = "bar-track";
+      const fill = document.createElement("div");
+      fill.className = "bar-fill";
+      track.appendChild(fill);
+
+      row.append(head, track);
+      bars.appendChild(row);
+
+      // animate width on next frame (% of full scale of 5)
+      requestAnimationFrame(() => { fill.style.width = (a.avg / 5 * 100) + "%"; });
+    });
+  }
+
+  function updateBanner() {
+    const allVoted = SCHEMA.questions.every(q => session[q.id] != null);
+    banner.classList.toggle("show", allVoted);
+  }
+
+  /* ---------------- Actions ---------------- */
+  document.getElementById("next").addEventListener("click", () => {
+    session = {};                                   // clear lock, keep tally
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    renderCards();
+    updateBanner();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Clear ALL votes and results for this device?")) return;
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(TALLY_KEY);
+    location.reload();
+  });
+
+  /* ---------------- Init ---------------- */
+  renderCards();
+  renderResults();
+  updateBanner();
+</script>
+</body>
+</html>
