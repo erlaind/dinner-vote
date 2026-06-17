@@ -32,4 +32,8 @@ That's it — open the project's root URL and the badge should read **Live**.
 
 - Share the root URL (or a QR code to it) — everyone votes from their own phone.
 - Each device gets one vote per option (per browser session).
+- The "👉 Next voter" button clears the lock (for a passed-around device)
+  while keeping the shared tally.
 - To start a fresh round, visit `…/api/reset?token=YOUR_TOKEN`.
+
+> See [HANDOFF.md](HANDOFF.md) for current deployment status and what's left to do.
