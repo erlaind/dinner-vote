@@ -41,11 +41,20 @@
   header h1 .accent { color: var(--accent); }
   header p { margin-top: 12px; color: var(--muted); font-size: 16px; }
 
+  .mode {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 14px; padding: 5px 12px;
+    border-radius: 999px; font-size: 12px; font-weight: 600;
+    background: #1a1d24; border: 1px solid rgba(255,255,255,0.08); color: var(--muted);
+  }
+  .mode .pip { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .mode.live .pip { background: #36d399; box-shadow: 0 0 8px #36d399; animation: pulse 1.6s infinite; }
+  .mode.local .pip { background: #ffc043; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
   /* ---- Voting cards ---- */
   .card {
-    display: flex;
-    align-items: center;
-    gap: 18px;
+    display: flex; align-items: center; gap: 18px;
     background: var(--card);
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: var(--radius);
@@ -56,18 +65,14 @@
   .card:not(.locked):hover { background: var(--card-hover); transform: translateY(-2px); }
 
   .thumb {
-    width: 92px; height: 92px;
-    border-radius: 14px;
-    object-fit: cover;
-    flex-shrink: 0;
+    width: 92px; height: 92px; border-radius: 14px;
+    object-fit: cover; flex-shrink: 0;
     background: #2a2e38;
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     display: block;
   }
   .thumb-fallback {
-    width: 92px; height: 92px;
-    border-radius: 14px;
-    flex-shrink: 0;
+    width: 92px; height: 92px; border-radius: 14px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     font-size: 46px;
     background: linear-gradient(135deg, #2a2e38, #20242d);
@@ -80,12 +85,9 @@
 
   .scale { display: flex; gap: 6px; margin-top: 10px; }
   .dot {
-    width: 38px; height: 38px;
-    border: none; border-radius: 10px;
-    background: var(--star-off);
-    color: #c7ccd6;
-    font-size: 15px; font-weight: 700;
-    cursor: pointer;
+    width: 38px; height: 38px; border: none; border-radius: 10px;
+    background: var(--star-off); color: #c7ccd6;
+    font-size: 15px; font-weight: 700; cursor: pointer;
     transition: background .15s, transform .1s, color .15s;
   }
   .dot:hover { transform: scale(1.08); }
@@ -102,23 +104,15 @@
     background: linear-gradient(90deg, rgba(255,122,60,0.12), rgba(255,192,67,0.12));
     border: 1px solid rgba(255,122,60,0.3);
     border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 24px;
-    font-size: 16px;
+    padding: 16px; margin-bottom: 24px; font-size: 16px;
     display: none;
   }
   .banner.show { display: block; }
 
   .btn {
-    display: inline-block;
-    background: var(--accent);
-    color: #1a1004;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 22px;
-    font-size: 15px; font-weight: 700;
-    cursor: pointer;
-    margin-top: 12px;
+    display: inline-block; background: var(--accent); color: #1a1004;
+    border: none; border-radius: 12px; padding: 12px 22px;
+    font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 12px;
     transition: transform .1s, filter .15s;
   }
   .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
@@ -128,8 +122,7 @@
     background: var(--card);
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: var(--radius);
-    padding: 22px 22px 10px;
-    margin-top: 28px;
+    padding: 22px 22px 10px; margin-top: 28px;
   }
   .results h2 { font-size: 22px; font-weight: 800; }
   .results .sub { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
@@ -144,16 +137,9 @@
   .bar-head .val { color: var(--muted); font-size: 13px; }
   .bar-head .val b { color: var(--star-on); font-size: 16px; }
 
-  .bar-track {
-    height: 22px;
-    background: #2a2e38;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+  .bar-track { height: 22px; background: #2a2e38; border-radius: 8px; overflow: hidden; }
   .bar-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 8px;
+    height: 100%; width: 0%; border-radius: 8px;
     background: linear-gradient(90deg, var(--accent), var(--star-on));
     transition: width .5s cubic-bezier(.2,.7,.2,1);
   }
@@ -168,6 +154,7 @@
     <header>
       <h1>What do we want for <span class="accent">dinner</span>?<br>Please Vote 🍽️</h1>
       <p>Rate each option from <strong>1 (no thanks)</strong> to <strong>5 (yes please!)</strong> — one vote per option.</p>
+      <div class="mode" id="mode"><span class="pip"></span><span id="modeText">Connecting…</span></div>
     </header>
 
     <div class="banner" id="banner">
@@ -181,19 +168,18 @@
     <!-- Live results -->
     <div class="results">
       <h2>📊 Live results</h2>
-      <p class="sub" id="resultsSub">No votes yet — be the first!</p>
+      <p class="sub" id="resultsSub">Loading…</p>
       <div id="bars"></div>
     </div>
 
     <footer>
-      One vote per option per session · results update live · <a id="reset">Reset everything</a>
+      One vote per option per session · results update live every 2s
     </footer>
   </div>
 
 <script>
   /* ---------------- Survey schema ---------------- */
   const SCHEMA = {
-    title: "What do we want for dinner",
     scale: { min: 1, max: 5 },
     questions: [
       { id: "pizza",  label: "Pizza",  emoji: "🍕", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&q=80&auto=format&fit=crop" },
@@ -204,27 +190,57 @@
     ]
   };
 
-  /* ---------------- State ----------------
-     session = current voter's locks (one click per option)
-     tally   = running aggregate across all voters in this browser */
-  const SESSION_KEY = "dinner-vote-session";
-  const TALLY_KEY   = "dinner-vote-tally";
+  /* ---------------- State ---------------- */
+  const SESSION_KEY = "dinner-vote-session";   // this voter's per-option locks
+  const LOCAL_TALLY_KEY = "dinner-vote-tally"; // used only in offline fallback
 
   let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
-  let tally = JSON.parse(localStorage.getItem(TALLY_KEY) || "null");
-  if (!tally) {
-    tally = {};
-    SCHEMA.questions.forEach(q => tally[q.id] = { count: 0, sum: 0 });
+  let mode = "connecting";          // 'live' (backend) | 'local' (offline)
+  let lastTally = emptyTally();     // last rendered tally
+
+  function emptyTally() {
+    const t = {};
+    SCHEMA.questions.forEach(q => t[q.id] = { count: 0, sum: 0 });
+    return t;
+  }
+  function loadLocalTally() {
+    const t = JSON.parse(localStorage.getItem(LOCAL_TALLY_KEY) || "null");
+    if (!t) return emptyTally();
+    SCHEMA.questions.forEach(q => { if (!t[q.id]) t[q.id] = { count: 0, sum: 0 }; });
+    return t;
+  }
+  function saveLocalTally(t) { localStorage.setItem(LOCAL_TALLY_KEY, JSON.stringify(t)); }
+  function saveSession() { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }
+
+  const list = document.getElementById("list");
+  const bars = document.getElementById("bars");
+  const banner = document.getElementById("banner");
+  const subEl = document.getElementById("resultsSub");
+  const modeEl = document.getElementById("mode");
+  const modeText = document.getElementById("modeText");
+
+  /* ---------------- Backend helpers ---------------- */
+  async function apiResults() {
+    const r = await fetch("/api/results", { cache: "no-store" });
+    if (!r.ok) throw new Error("results " + r.status);
+    const data = await r.json();
+    return data.tally;
+  }
+  async function apiVote(id, value) {
+    const r = await fetch("/api/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, value })
+    });
+    if (!r.ok) throw new Error("vote " + r.status);
   }
 
-  const list    = document.getElementById("list");
-  const bars    = document.getElementById("bars");
-  const banner  = document.getElementById("banner");
-  const subEl   = document.getElementById("resultsSub");
-
-  function save() {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    localStorage.setItem(TALLY_KEY, JSON.stringify(tally));
+  function setMode(m) {
+    mode = m;
+    modeEl.classList.remove("live", "local");
+    if (m === "live") { modeEl.classList.add("live"); modeText.textContent = "Live · shared across all devices"; }
+    else if (m === "local") { modeEl.classList.add("local"); modeText.textContent = "Offline · this device only"; }
+    else { modeText.textContent = "Connecting…"; }
   }
 
   /* ---------------- Render voting cards ---------------- */
@@ -236,38 +252,26 @@
       const card = document.createElement("div");
       card.className = "card" + (locked ? " locked" : "");
 
-      // image with emoji fallback (so options are always visible offline)
       const img = document.createElement("img");
-      img.className = "thumb";
-      img.src = q.img;
-      img.alt = q.label;
-      img.loading = "lazy";
+      img.className = "thumb"; img.src = q.img; img.alt = q.label; img.loading = "lazy";
       img.onerror = function () {
         const fb = document.createElement("div");
-        fb.className = "thumb-fallback";
-        fb.textContent = q.emoji;
+        fb.className = "thumb-fallback"; fb.textContent = q.emoji;
         img.replaceWith(fb);
       };
 
-      const info = document.createElement("div");
-      info.className = "info";
-
-      const name = document.createElement("div");
-      name.className = "name";
-      name.textContent = q.emoji + " " + q.label;
-
-      const hint = document.createElement("div");
-      hint.className = "hint";
+      const info = document.createElement("div"); info.className = "info";
+      const name = document.createElement("div"); name.className = "name"; name.textContent = q.emoji + " " + q.label;
+      const hint = document.createElement("div"); hint.className = "hint";
       hint.textContent = locked ? "You voted: " + session[q.id] + " / 5" : "Tap a number to vote";
 
-      const scale = document.createElement("div");
-      scale.className = "scale";
+      const scale = document.createElement("div"); scale.className = "scale";
       for (let v = SCHEMA.scale.min; v <= SCHEMA.scale.max; v++) {
         const dot = document.createElement("button");
         dot.className = "dot" + (locked && v <= session[q.id] ? " selected" : "");
         dot.textContent = v;
-        if (locked) { dot.disabled = true; }
-        else { dot.addEventListener("click", () => vote(q.id, v)); }
+        if (locked) dot.disabled = true;
+        else dot.addEventListener("click", () => vote(q.id, v));
         scale.appendChild(dot);
       }
 
@@ -278,53 +282,66 @@
   }
 
   /* ---------------- Vote ---------------- */
-  function vote(id, value) {
-    if (session[id] != null) return;       // one click per session per option
+  async function vote(id, value) {
+    if (session[id] != null) return;     // one click per session per option
     session[id] = value;
-    tally[id].count += 1;
-    tally[id].sum   += value;
-    save();
+    saveSession();
     renderCards();
-    renderResults();
     updateBanner();
+
+    if (mode === "live") {
+      // optimistic local bump, then send + refresh from server
+      lastTally[id].count += 1; lastTally[id].sum += value;
+      renderResults(lastTally);
+      try {
+        await apiVote(id, value);
+        refreshResults();              // pull authoritative shared totals
+      } catch (e) {
+        console.error(e);
+        subEl.textContent = "⚠️ Couldn't reach the server — your vote may not have counted.";
+      }
+    } else {
+      // offline: keep a per-device tally
+      const t = loadLocalTally();
+      t[id].count += 1; t[id].sum += value;
+      saveLocalTally(t);
+      renderResults(t);
+    }
   }
 
   /* ---------------- Render live results ---------------- */
-  function renderResults() {
-    const avgs = SCHEMA.questions.map(q => {
-      const t = tally[q.id];
+  function renderResults(tally) {
+    lastTally = tally;
+    const rows = SCHEMA.questions.map(q => {
+      const t = tally[q.id] || { count: 0, sum: 0 };
       return { q, count: t.count, avg: t.count ? t.sum / t.count : 0 };
     });
-    const maxAvg = Math.max(1, ...avgs.map(a => a.avg)); // for bar scaling (vs 5)
-    const leader = avgs.reduce((a, b) => (b.avg > a.avg ? b : a), avgs[0]);
-    const totalVotes = avgs.reduce((s, a) => s + a.count, 0);
+    const leader = rows.reduce((a, b) => (b.avg > a.avg ? b : a), rows[0]);
+    const totalVotes = rows.reduce((s, a) => s + a.count, 0);
 
     subEl.textContent = totalVotes === 0
       ? "No votes yet — be the first!"
       : totalVotes + " vote" + (totalVotes === 1 ? "" : "s") + " so far · bars show average rating (out of 5)";
 
     bars.innerHTML = "";
-    avgs.forEach(a => {
+    rows.forEach(a => {
+      const isLeader = totalVotes && a.q.id === leader.q.id && a.avg > 0;
       const row = document.createElement("div");
-      row.className = "bar-row" + (totalVotes && a.q.id === leader.q.id && a.avg > 0 ? " leader" : "");
+      row.className = "bar-row" + (isLeader ? " leader" : "");
 
       const head = document.createElement("div");
       head.className = "bar-head";
       head.innerHTML =
         '<span class="lbl"><span class="emoji">' + a.q.emoji + '</span>' + a.q.label +
-        (totalVotes && a.q.id === leader.q.id && a.avg > 0 ? ' 👑' : '') + '</span>' +
-        '<span class="val"><b>' + (a.count ? a.avg.toFixed(1) : "–") + '</b> avg · ' + a.count + ' vote' + (a.count === 1 ? "" : "s") + '</span>';
+        (isLeader ? ' 👑' : '') + '</span>' +
+        '<span class="val"><b>' + (a.count ? a.avg.toFixed(1) : "–") + '</b> avg · ' +
+        a.count + ' vote' + (a.count === 1 ? "" : "s") + '</span>';
 
-      const track = document.createElement("div");
-      track.className = "bar-track";
-      const fill = document.createElement("div");
-      fill.className = "bar-fill";
+      const track = document.createElement("div"); track.className = "bar-track";
+      const fill = document.createElement("div"); fill.className = "bar-fill";
       track.appendChild(fill);
-
       row.append(head, track);
       bars.appendChild(row);
-
-      // animate width on next frame (% of full scale of 5)
       requestAnimationFrame(() => { fill.style.width = (a.avg / 5 * 100) + "%"; });
     });
   }
@@ -334,26 +351,40 @@
     banner.classList.toggle("show", allVoted);
   }
 
+  async function refreshResults() {
+    if (mode !== "live") return;
+    try {
+      const tally = await apiResults();
+      renderResults(tally);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   /* ---------------- Actions ---------------- */
   document.getElementById("next").addEventListener("click", () => {
-    session = {};                                   // clear lock, keep tally
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    session = {};                       // clear lock, keep shared/local tally
+    saveSession();
     renderCards();
     updateBanner();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  document.getElementById("reset").addEventListener("click", () => {
-    if (!confirm("Clear ALL votes and results for this device?")) return;
-    localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(TALLY_KEY);
-    location.reload();
-  });
-
   /* ---------------- Init ---------------- */
-  renderCards();
-  renderResults();
-  updateBanner();
+  (async function init() {
+    renderCards();
+    updateBanner();
+    setMode("connecting");
+    try {
+      const tally = await apiResults();   // backend reachable?
+      setMode("live");
+      renderResults(tally);
+      setInterval(refreshResults, 2000);  // live polling
+    } catch (e) {
+      setMode("local");                   // graceful offline fallback
+      renderResults(loadLocalTally());
+    }
+  })();
 </script>
 </body>
 </html>

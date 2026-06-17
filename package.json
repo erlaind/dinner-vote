@@ -1,0 +1,10 @@
+{
+  "name": "dinner-vote",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live dinner-vote workshop survey with a tiny serverless backend",
+  "dependencies": {
+    "@upstash/redis": "^1.34.3"
+  }
+}
