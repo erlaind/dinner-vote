@@ -16,12 +16,13 @@ options 1–5; results update across all devices in real time.
 | GitHub repo | ✅ Pushed → https://github.com/erlaind/dinner-vote |
 | Vercel deploy | ✅ Deployed (root URL serves `index.html`) |
 | Upstash Redis store | ✅ Created — `upstash-kv-bronze-arrow` (Free plan, Available) |
-| Redis ↔ Vercel project connected | ⚠️ **Verify** — click "Connect to Project" in Upstash |
-| Redeploy after connecting Redis | ⚠️ **Required** — env vars only apply to new deploys |
+| Redis ↔ Vercel project connected | ✅ Connected |
+| Redeploy after connecting Redis | ✅ Redeployed |
+| Live mode verified | ✅ Tested — badge reads 🟢 Live |
 | `RESET_TOKEN` env var (optional) | ⬜ Not set — reset endpoint stays disabled until added |
 
-**Definition of done:** open the deployed root URL and the badge under the
-title reads **🟢 Live · shared across all devices**.
+**Status: ready for the workshop.** 🎉 The only optional item left is setting
+`RESET_TOKEN` if you want to clear votes between rounds.
 
 ---
 
@@ -34,8 +35,8 @@ title reads **🟢 Live · shared across all devices**.
 - **One vote per option per browser session** (prevents duplicates)
 - **Live results bar chart** — average rating per option, leader gets 👑,
   updates every 2 seconds across every device
-- **"Next voter" button** — clears the lock for a passed-around device while
-  keeping the shared tally
+- **QR code on the page** — encodes the page's own URL; project it and people
+  scan to vote from their own phones
 
 ---
 

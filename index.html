@@ -109,13 +109,21 @@
   }
   .banner.show { display: block; }
 
-  .btn {
-    display: inline-block; background: var(--accent); color: #1a1004;
-    border: none; border-radius: 12px; padding: 12px 22px;
-    font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 12px;
-    transition: transform .1s, filter .15s;
+  /* ---- QR code ---- */
+  .qr-card {
+    display: flex; align-items: center; gap: 20px; justify-content: center;
+    background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 24px;
   }
-  .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  .qr-box { background: #fff; padding: 10px; border-radius: 12px; flex-shrink: 0; line-height: 0; }
+  .qr-box img { width: 150px; height: 150px; display: block; }
+  .qr-title { font-size: 18px; font-weight: 700; }
+  .qr-sub { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .qr-link {
+    display: inline-block; margin-top: 4px; color: var(--accent);
+    font-size: 14px; word-break: break-all; text-decoration: underline;
+  }
+  @media (max-width: 520px) { .qr-card { flex-direction: column; text-align: center; } }
 
   /* ---- Results ---- */
   .results {
@@ -157,10 +165,17 @@
       <div class="mode" id="mode"><span class="pip"></span><span id="modeText">Connecting…</span></div>
     </header>
 
+    <div class="qr-card" id="qrCard">
+      <div class="qr-box"><img id="qrImg" alt="QR code — scan to open the vote on your phone"></div>
+      <div class="qr-text">
+        <div class="qr-title">📱 Scan to vote on your phone</div>
+        <div class="qr-sub">…or open this link:</div>
+        <a class="qr-link" id="qrLink" href="#"></a>
+      </div>
+    </div>
+
     <div class="banner" id="banner">
-      ✅ Thanks for voting! Your ratings are locked in.
-      <br>
-      <button class="btn" id="next">👉 Next voter (pass the device)</button>
+      ✅ Thanks for voting! Your ratings are locked in — watch the live results below 👇
     </div>
 
     <div id="list"></div>
@@ -361,14 +376,24 @@
     }
   }
 
-  /* ---------------- Actions ---------------- */
-  document.getElementById("next").addEventListener("click", () => {
-    session = {};                       // clear lock, keep shared/local tally
-    saveSession();
-    renderCards();
-    updateBanner();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  /* ---------------- QR code (encodes this page's own URL) ---------------- */
+  (function setupQR() {
+    const url = location.origin + location.pathname;
+    const link = document.getElementById("qrLink");
+    link.textContent = url;
+    link.href = url;
+
+    const enc = encodeURIComponent(url);
+    const img = document.getElementById("qrImg");
+    const primary = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=" + enc;
+    const backup = "https://quickchart.io/qr?size=300&margin=1&text=" + enc;
+    img.onerror = function () {
+      // primary CDN failed → try backup once, then hide the image (link still works)
+      img.onerror = function () { document.getElementById("qrCard").querySelector(".qr-box").style.display = "none"; };
+      img.src = backup;
+    };
+    img.src = primary;
+  })();
 
   /* ---------------- Init ---------------- */
   (async function init() {
